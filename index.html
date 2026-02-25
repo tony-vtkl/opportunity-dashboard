@@ -458,9 +458,9 @@ function renderTable() {
                 ${o.description ? `<div style="color:#888;font-size:0.75rem;margin-top:2px">${esc(truncate(o.description, 60))}</div>` : ''}</td>
             <td><span class="score-badge ${scoreCls}">${fmtScore(score)}</span></td>
             <td class="revenue-fmt">${fmtCurrency(o.revenue)}</td>
-            <td>${LEVEL_ICONS[o.effort] || '—'} <span style="color:#999;font-size:0.75rem">${o.effort || ''}</span></td>
-            <td class="hide-mobile">${LEVEL_ICONS[o.risk] || '—'} <span style="color:#999;font-size:0.75rem">${o.risk || ''}</span></td>
-            <td class="hide-mobile">${LEVEL_ICONS[o.ambiguity] || '—'} <span style="color:#999;font-size:0.75rem">${o.ambiguity || ''}</span></td>
+            <td>${NUM_LABEL[o.effort] || o.effort || '—'}</td>
+            <td class="hide-mobile">${NUM_LABEL[o.risk] || o.risk || '—'}</td>
+            <td class="hide-mobile">${NUM_LABEL[o.ambiguity] || o.ambiguity || '—'}</td>
             <td>
                 <select class="inline-edit" style="width:auto" onchange="inlineUpdate('${o.id}','status',this.value)">
                     ${['idea','evaluate','pursue','archive'].map(s => `<option ${s===o.status?'selected':''}>${s}</option>`).join('')}

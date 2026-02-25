@@ -316,15 +316,15 @@
             </div>
             <div class="form-group">
                 <label>Effort Level</label>
-                <select id="f-effort"><option value="">—</option><option>low</option><option>medium</option><option>high</option></select>
+                <select id="f-effort"><option value="">—</option><option value="1">low</option><option value="3">medium</option><option value="5">high</option></select>
             </div>
             <div class="form-group">
                 <label>Risk Score</label>
-                <select id="f-risk"><option value="">—</option><option>low</option><option>medium</option><option>high</option></select>
+                <select id="f-risk"><option value="">—</option><option value="1">low</option><option value="3">medium</option><option value="5">high</option></select>
             </div>
             <div class="form-group">
                 <label>Ambiguity Level</label>
-                <select id="f-ambiguity"><option value="">—</option><option>low</option><option>medium</option><option>high</option></select>
+                <select id="f-ambiguity"><option value="">—</option><option value="1">low</option><option value="3">medium</option><option value="5">high</option></select>
             </div>
             <div class="form-group">
                 <label>Status</label>
@@ -373,8 +373,9 @@ let currentView = 'table';
 let commentTarget = null;
 let bubbleChart = null;
 
-const LEVEL_NUM = { low: 1, medium: 2, high: 3 };
-const LEVEL_ICONS = { low: '🟢', medium: '🟡', high: '🔴' };
+const LEVEL_NUM = { low: 1, medium: 3, high: 5, 1: 1, 3: 3, 5: 5 };
+const LEVEL_ICONS = { low: '🟢', medium: '🟡', high: '🔴', 1: '🟢', 3: '🟡', 5: '🔴' };
+const NUM_LABEL = { 1: 'low', 3: 'medium', 5: 'high' };
 const STATUS_COLORS = { idea: '#3498db', evaluate: '#f1c40f', pursue: '#2ecc71', archive: '#95a5a6' };
 
 function calcScore(o) {
@@ -551,9 +552,9 @@ async function saveOpportunity() {
         description: document.getElementById('f-desc').value.trim() || null,
         revenue: parseFloat(document.getElementById('f-revenue').value) || null,
         timeline: document.getElementById('f-timeline').value.trim() || null,
-        effort: document.getElementById('f-effort').value || null,
-        risk: document.getElementById('f-risk').value || null,
-        ambiguity: document.getElementById('f-ambiguity').value || null,
+        effort: parseInt(document.getElementById('f-effort').value) || 1,
+        risk: parseInt(document.getElementById('f-risk').value) || 1,
+        ambiguity: parseInt(document.getElementById('f-ambiguity').value) || 1,
         status: document.getElementById('f-status').value,
         priority: document.getElementById('f-priority').value || null,
         assigned: document.getElementById('f-assigned').value.trim() || null,

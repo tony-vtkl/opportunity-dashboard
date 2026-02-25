@@ -378,10 +378,10 @@ const LEVEL_ICONS = { low: '🟢', medium: '🟡', high: '🔴' };
 const STATUS_COLORS = { idea: '#3498db', evaluate: '#f1c40f', pursue: '#2ecc71', archive: '#95a5a6' };
 
 function calcScore(o) {
-    const rev = parseFloat(o.estimated_revenue) || 0;
-    const e = LEVEL_NUM[o.effort_level] || 2;
-    const r = LEVEL_NUM[o.risk_score] || 2;
-    const a = LEVEL_NUM[o.ambiguity_level] || 2;
+    const rev = parseFloat(o.revenue) || 0;
+    const e = LEVEL_NUM[o.effort] || 2;
+    const r = LEVEL_NUM[o.risk] || 2;
+    const a = LEVEL_NUM[o.ambiguity] || 2;
     return rev / (e + a + r);
 }
 
@@ -417,7 +417,7 @@ function getFiltered() {
     let list = [...opportunities];
     if (currentFilter !== 'all') list = list.filter(o => o.status === currentFilter);
     const assigned = document.getElementById('filter-assigned').value;
-    if (assigned) list = list.filter(o => o.assigned_to === assigned);
+    if (assigned) list = list.filter(o => o.assigned === assigned);
     const priority = document.getElementById('filter-priority').value;
     if (priority) list = list.filter(o => o.priority === priority);
     const q = document.getElementById('filter-search').value.toLowerCase();
@@ -430,7 +430,7 @@ function getFiltered() {
 function populateAssignedFilter() {
     const sel = document.getElementById('filter-assigned');
     const cur = sel.value;
-    const assignees = [...new Set(opportunities.map(o => o.assigned_to).filter(Boolean))].sort();
+    const assignees = [...new Set(opportunities.map(o => o.assigned).filter(Boolean))].sort();
     sel.innerHTML = '<option value="">All Assignees</option>' + assignees.map(a => `<option>${a}</option>`).join('');
     sel.value = cur;
 }
@@ -456,10 +456,10 @@ function renderTable() {
             <td><strong style="cursor:pointer" onclick="openModal('${o.id}')">${esc(o.name)}</strong>
                 ${o.description ? `<div style="color:#888;font-size:0.75rem;margin-top:2px">${esc(truncate(o.description, 60))}</div>` : ''}</td>
             <td><span class="score-badge ${scoreCls}">${fmtScore(score)}</span></td>
-            <td class="revenue-fmt">${fmtCurrency(o.estimated_revenue)}</td>
-            <td>${LEVEL_ICONS[o.effort_level] || '—'} <span style="color:#999;font-size:0.75rem">${o.effort_level || ''}</span></td>
-            <td class="hide-mobile">${LEVEL_ICONS[o.risk_score] || '—'} <span style="color:#999;font-size:0.75rem">${o.risk_score || ''}</span></td>
-            <td class="hide-mobile">${LEVEL_ICONS[o.ambiguity_level] || '—'} <span style="color:#999;font-size:0.75rem">${o.ambiguity_level || ''}</span></td>
+            <td class="revenue-fmt">${fmtCurrency(o.revenue)}</td>
+            <td>${LEVEL_ICONS[o.effort] || '—'} <span style="color:#999;font-size:0.75rem">${o.effort || ''}</span></td>
+            <td class="hide-mobile">${LEVEL_ICONS[o.risk] || '—'} <span style="color:#999;font-size:0.75rem">${o.risk || ''}</span></td>
+            <td class="hide-mobile">${LEVEL_ICONS[o.ambiguity] || '—'} <span style="color:#999;font-size:0.75rem">${o.ambiguity || ''}</span></td>
             <td>
                 <select class="inline-edit" style="width:auto" onchange="inlineUpdate('${o.id}','status',this.value)">
                     ${['idea','evaluate','pursue','archive'].map(s => `<option ${s===o.status?'selected':''}>${s}</option>`).join('')}
@@ -471,7 +471,7 @@ function renderTable() {
                     ${['priority','stretch'].map(p => `<option ${p===o.priority?'selected':''}>${p}</option>`).join('')}
                 </select>
             </td>
-            <td class="hide-mobile">${esc(o.assigned_to || '—')}</td>
+            <td class="hide-mobile">${esc(o.assigned || '—')}</td>
             <td class="hide-mobile" style="color:#999">${esc(o.timeline || '—')}</td>
             <td>
                 <button class="btn btn-sm btn-secondary" onclick="openModal('${o.id}')" title="Edit" style="margin-right:4px">✏️</button>
@@ -521,14 +521,14 @@ function openModal(editId) {
         if (!o) return;
         document.getElementById('f-name').value = o.name;
         document.getElementById('f-desc').value = o.description || '';
-        document.getElementById('f-revenue').value = o.estimated_revenue || '';
+        document.getElementById('f-revenue').value = o.revenue || '';
         document.getElementById('f-timeline').value = o.timeline || '';
-        document.getElementById('f-effort').value = o.effort_level || '';
-        document.getElementById('f-risk').value = o.risk_score || '';
-        document.getElementById('f-ambiguity').value = o.ambiguity_level || '';
+        document.getElementById('f-effort').value = o.effort || '';
+        document.getElementById('f-risk').value = o.risk || '';
+        document.getElementById('f-ambiguity').value = o.ambiguity || '';
         document.getElementById('f-status').value = o.status || 'idea';
         document.getElementById('f-priority').value = o.priority || '';
-        document.getElementById('f-assigned').value = o.assigned_to || '';
+        document.getElementById('f-assigned').value = o.assigned || '';
     } else {
         ['f-name','f-desc','f-revenue','f-timeline','f-assigned'].forEach(id => document.getElementById(id).value = '');
         document.getElementById('f-effort').value = '';
@@ -549,14 +549,14 @@ async function saveOpportunity() {
     const data = {
         name,
         description: document.getElementById('f-desc').value.trim() || null,
-        estimated_revenue: parseFloat(document.getElementById('f-revenue').value) || null,
+        revenue: parseFloat(document.getElementById('f-revenue').value) || null,
         timeline: document.getElementById('f-timeline').value.trim() || null,
-        effort_level: document.getElementById('f-effort').value || null,
-        risk_score: document.getElementById('f-risk').value || null,
-        ambiguity_level: document.getElementById('f-ambiguity').value || null,
+        effort: document.getElementById('f-effort').value || null,
+        risk: document.getElementById('f-risk').value || null,
+        ambiguity: document.getElementById('f-ambiguity').value || null,
         status: document.getElementById('f-status').value,
         priority: document.getElementById('f-priority').value || null,
-        assigned_to: document.getElementById('f-assigned').value.trim() || null,
+        assigned: document.getElementById('f-assigned').value.trim() || null,
         updated_at: new Date().toISOString()
     };
 
@@ -634,7 +634,7 @@ async function addComment() {
 
 // Chart
 function renderChart() {
-    const list = getFiltered().filter(o => o.effort_level && o.estimated_revenue);
+    const list = getFiltered().filter(o => o.effort && o.revenue);
     const ctx = document.getElementById('bubbleChart').getContext('2d');
 
     if (bubbleChart) bubbleChart.destroy();
@@ -650,8 +650,8 @@ function renderChart() {
             borderColor: STATUS_COLORS[status],
             borderWidth: 1,
             data: items.map(o => ({
-                x: LEVEL_NUM[o.effort_level] || 2,
-                y: parseFloat(o.estimated_revenue) || 0,
+                x: LEVEL_NUM[o.effort] || 2,
+                y: parseFloat(o.revenue) || 0,
                 r: Math.max(5, Math.min(40, calcScore(o) / 5000)),
                 label: o.name
             }))
